@@ -6,11 +6,11 @@ import { CartItem } from '../common/cart-item';
   providedIn: 'root'
 })
 export class CartService {
-
+  
   cartItems: CartItem[] = [];
 
   totalPrice: Subject<number> = new Subject<number>();
-  totalQuality: Subject<number> = new Subject<number>();
+  totalQuantity: Subject<number> = new Subject<number>();
 
   constructor() { }
 
@@ -31,7 +31,27 @@ export class CartService {
     this.computeTotalPrice();
   }
 
-  private computeTotalPrice() {
+  decrementItem(cartItem: CartItem) {
+    cartItem.quantity--;
+
+    if(cartItem.quantity == 0) {
+      this.removeItem(cartItem);
+    } else {
+      this.computeTotalPrice();
+    }
+  }
+
+  removeItem(cartItem: CartItem) {
+    const itemIndex: number = this.cartItems.findIndex(c => c.id == cartItem.id);
+
+    if(itemIndex > -1) {
+      this.cartItems.splice(itemIndex, 1);
+      
+      this.computeTotalPrice();
+    }
+  }
+
+  computeTotalPrice() {
     let totalPrice: number = 0;
     let totalQuality: number = 0;
 
@@ -41,7 +61,7 @@ export class CartService {
     })
 
     this.totalPrice.next(totalPrice);
-    this.totalQuality.next(totalQuality);
+    this.totalQuantity.next(totalQuality);
 
     console.log(totalPrice);
     console.log(totalQuality);

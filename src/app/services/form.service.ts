@@ -2,14 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormService {
 
-  countryUrl: string = "http://localhost:8080/api/countries";
-  stateUrl: string = "http://localhost:8080/api/states";
+  countryUrl: string = environment.apiBaseUrl + "/countries";
+  stateUrl: string = environment.apiBaseUrl + "/states";
 
   constructor(private httpClient: HttpClient) { }
 

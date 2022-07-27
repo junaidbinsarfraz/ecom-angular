@@ -30,6 +30,8 @@ export class CheckoutComponent implements OnInit {
   shippingAddressStates: State[] = [];
   billingAddressStates: State[] = [];
 
+  storage: Storage = sessionStorage;
+
   constructor(private fb: FormBuilder, 
               private formService: FormService,
               private cartService: CartService,
@@ -37,11 +39,13 @@ export class CheckoutComponent implements OnInit {
               private router: Router) { }
 
   ngOnInit() {
+    const email = this.storage.getItem('userEmail') ? JSON.parse(this.storage.getItem('userEmail')) : '';
+    
     this.checkoutForm = this.fb.group({
       customer: this.fb.group({
         firstName: new FormControl('', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhiteSpace]),
         lastName: new FormControl('', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhiteSpace]),
-        email: new FormControl('', [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
+        email: new FormControl( email, [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
       }),
       shippingAddress: this.fb.group({
         street: new FormControl('', [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhiteSpace]),
@@ -164,6 +168,7 @@ export class CheckoutComponent implements OnInit {
     this.cartService.cartItems = [];
     this.cartService.totalPrice.next(0);
     this.cartService.totalQuantity.next(0);
+    this.cartService.computeTotalPrice();
 
     this.checkoutForm.reset();
 

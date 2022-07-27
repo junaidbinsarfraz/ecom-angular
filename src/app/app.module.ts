@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -19,6 +19,8 @@ import { LoginStatusComponent } from './components/login-status/login-status.com
 import { OktaAuthGuard, OktaAuthModule, OktaCallbackComponent, OKTA_CONFIG } from '@okta/okta-angular';
 import appConfig from './common/config/app-config';
 import { MembersComponent } from './components/members/members.component';
+import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { AuthInterceptorService } from './common/inteceptors/auth-interceptor.service';
 
 const oktaConfig = Object.assign({
   onAuthrequired: (oktaAuth, injector) => {
@@ -28,6 +30,7 @@ const oktaConfig = Object.assign({
 }, appConfig.oidc);
 
 const routes: Routes = [
+  {path: 'order-history', component: OrderHistoryComponent, canActivate: [ OktaAuthGuard ]},
   {path: 'members', component: MembersComponent, canActivate: [ OktaAuthGuard ]},
   {path: 'login/callback', component: OktaCallbackComponent},
   {path: 'login', component: LoginComponent},
@@ -54,7 +57,8 @@ const routes: Routes = [
     CheckoutComponent,
     LoginComponent,
     LoginStatusComponent,
-    MembersComponent
+    MembersComponent,
+    OrderHistoryComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -64,7 +68,10 @@ const routes: Routes = [
     ReactiveFormsModule,
     OktaAuthModule
   ],
-  providers: [ProductService, {provide: OKTA_CONFIG, useValue: oktaConfig}],
+  providers: [ProductService, 
+              {provide: OKTA_CONFIG, useValue: oktaConfig},
+              {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}
+            ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
